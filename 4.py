@@ -1,166 +1,55 @@
-import time
-from numpy.random import seed
-from numpy.random import randint
-import matplotlib.pyplot as plt
+import sys
 
-def mergeSort(array):
-    if len(array) > 1:
+class Graph:
+    def __init__(self, vertices):
+        self.V = vertices
+        self.graph = [[0 for _ in range(vertices)] for _ in range(vertices)]
 
-        r = len(array)//2
-        L = array[:r]
-        M = array[r:]
+    def add_edge(self, u, v, weight):
+        self.graph[u][v] = weight
+        self.graph[v][u] = weight
 
-        mergeSort(L)
-        mergeSort(M)
+    def print_mst(self, parent):
+        print("Thermal Station   --   Connected to   -->   Thermal Station   Cost")
+        for i in range(1, self.V):
+            print(f"   {i}                    --                    {parent[i]}                 {self.graph[i][parent[i]]}")
 
-        i = j = k = 0
+    def prim_mst(self):
+        key = [sys.maxsize] * self.V
+        parent = [None] * self.V
+        key[0] = 0
+        mst_set = [False] * self.V
 
-        while i < len(L) and j < len(M):
-            if L[i] < M[j]:
-                array[k] = L[i]
-                i += 1
-            else:
-                array[k] = M[j]
-                j += 1
-            k += 1
+        parent[0] = -1
 
-        while i < len(L):
-            array[k] = L[i]
-            i += 1
-            k += 1
+        for _ in range(self.V):
+            min_key = sys.maxsize
+            min_index = 0
 
-        while j < len(M):
-            array[k] = M[j]
-            j += 1
-            k += 1
+            for v in range(self.V):
+                if key[v] < min_key and not mst_set[v]:
+                    min_key = key[v]
+                    min_index = v
 
+            mst_set[min_index] = True
 
-def printList(array):
-    for i in range(len(array)):
-        print(array[i], end=" ")
-    print()
+            for v in range(self.V):
+                if self.graph[min_index][v] > 0 and not mst_set[v] and self.graph[min_index][v] < key[v]:
+                    key[v] = self.graph[min_index][v]
+                    parent[v] = min_index
 
-
-# if __name__ == '_main_':
-#         array = [6, 5, 12, 10, 9, 1]
-#         mergeSort(array)
-
-# print("Sorted array is: ")
-# printList(array)
-
-def partition(array, low, high):
-
-  pivot = array[high]
-  i = low - 1
-
-  for j in range(low, high):
-    if array[j] <= pivot:
-      i = i + 1
-
-      (array[i], array[j]) = (array[j], array[i])
-
-  (array[i + 1], array[high]) = (array[high], array[i + 1])
-  return i + 1
-
-def quickSort(array, low, high):
-  if low < high:
-
-    pi = partition(array, low, high)
-
-    quickSort(array, low, pi - 1)
-    quickSort(array, pi + 1, high)
-
-# data = [8, 7, 2, 1, 0, 9, 6]
-# print("Unsorted Array")
-# print(data)
-
-# size = len(data)
-
-# quickSort(data, 0, size - 1)
-
-# print('Sorted Array in Ascending Order:')
-# print(data)
+        self.print_mst(parent)
 
 
-def selectionSort(array, size):
-   
-    for step in range(size):
-        min_idx = step
+# Accepting user input
+n = int(input("Enter the number of thermal power stations: "))
+g = Graph(n)
 
-        for i in range(step + 1, size):
-            if array[i] < array[min_idx]:
-                min_idx = i
-        (array[step], array[min_idx]) = (array[min_idx], array[step])
+print("Enter the cost of electrification for each connection:")
+for i in range(n):
+    for j in range(i+1, n):
+        cost = int(input(f"Enter the cost between thermal station {i} and {j}: "))
+        g.add_edge(i, j, cost)
 
-
-# data = [-2, 45, 0, 11, -9]
-# size = len(data)
-# selectionSort(data, size)5
-# print('Sorted Array in Ascending Order:')
-# print(data)
-
-def read_Input():
-  a=[]
-  n=int(input("Enter the number of TV Channels:"))
-  print("enter the number of viewers")
-  for i in range(0,n):
-    l=int(input())
-    a.append(l)
-  return a;
-
-elements = list()
-times = list()
-global labeldata
-print("1. Merge sort 2. Quick Sort 3. Selection Sort")
-ch=int(input("Enter the Choice"))
-if (ch == 1):
-   array=read_Input()
-   mergeSort(array)
-   labeldata="MergeSort"
-   print('Sorted Array is:')
-   print(array)
-elif(ch==2):
-   array=read_Input()
-   size = len(array)
-   labeldata="QuickSort"
-   quickSort(array,0, size-1)
-   print('Sorted Array is:')
-   print(array)
-  
-if (ch == 3):
-  array=read_Input()
-  size = len(array)
-  labeldata="SelectionSort"
-  selectionSort(array, size)
-  print('Sorted Array is:')
-  print(array)
-print("***Running Time Analysis*** ")
-for i in range(1, 10):
-
-    array = randint(0, 1000 * i, 1000 * i)
-    print(i)
-    start = time.time()
-    
-    if ch==1:
-       mergeSort(array)
-
-    elif ch==2:
-        size=len(array)
-        quickSort(array, 0, size - 1)
-    else:
-        size=len(array)
-        selectionSort(array,size)
-    end = time.time()
-
-    print("Sorted list is ",array)
-    print(len(array), "Elements Sorted by", labeldata,end-start)
-    elements.append(len(array))
-    times.append(end-start)
-
-plt.xlabel('List Length')
-plt.ylabel('Time Complexity')
-# labeldata="sort"
-plt.plot(elements, times, label=labeldata)
-plt.grid()
-plt.legend()
-plt.show()
+# Compute and display the minimum cost connection
+g.prim_mst()
