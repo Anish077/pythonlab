@@ -18,7 +18,7 @@ def printNodes(node, val=''):
         printNodes(node.right,newVal)
     if(not node.left and not node.right):
         print(f"{node.symbol} -> {newVal}")
-     def encode_text(text, huffman_tree):
+def encode_text(text, huffman_tree):
     encoding_map = {}
 
     def traverse_tree(node, code=''):
