@@ -18,6 +18,40 @@ def printNodes(node, val=''):
         printNodes(node.right,newVal)
     if(not node.left and not node.right):
         print(f"{node.symbol} -> {newVal}")
+     def encode_text(text, huffman_tree):
+    encoding_map = {}
+
+    def traverse_tree(node, code=''):
+        if node.left:
+            traverse_tree(node.left, code + '0')
+        if node.right:
+            traverse_tree(node.right, code + '1')
+        if not node.left and not node.right:
+            encoding_map[node.symbol] = code
+
+    traverse_tree(huffman_tree)
+
+    encoded_text = ''
+    for char in text:
+        encoded_text += encoding_map[char]
+
+    return encoded_text
+
+def decode_text(encoded_text, huffman_tree):
+    decoded_text = ''
+    current_node = huffman_tree
+
+    for bit in encoded_text:
+        if bit == '0':
+            current_node = current_node.left
+        else:
+            current_node = current_node.right
+
+        if not current_node.left and not current_node.right:
+            decoded_text += current_node.symbol
+            current_node = huffman_tree
+
+    return decoded_text
 chars = []
 for x in range(6):
     k=input("enter char:")
